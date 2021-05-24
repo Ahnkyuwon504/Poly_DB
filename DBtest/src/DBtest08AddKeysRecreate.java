@@ -49,14 +49,23 @@ public class DBtest08AddKeysRecreate {
 	    		 }
 	    	 }
 	    	 
-	    	 QueryTxt = String.format("insert ignore into freewifi2 ("
+	    	 
+	    	 QueryTxt = String.format("insert ignore into freewifi4 ("
+	    			 // ignore 통해 중복행은 insert하지 않는다...
 	    			 + "inst_place, inst_place_detail, inst_city, inst_country, inst_place_flag, "
+	    			 // 첫번째 ~ 다섯번째 칼럼
 	    			 + "service_provider, wifi_ssid, inst_date, place_addr_road, place_addr_land, "
+	    			 // 여섯번째 ~ 열번째 칼럼
 	    			 + "manage_office, manage_office_phone, latitue, longitude, write_date) "
+	    			 // 열한번째 ~ 열다섯번째 칼럼
 	    			 + "values ("
+	    			 // 실제 넣을 값들
 	    			 + "'%s', '%s', '%s', '%s', '%s', "
+	    			 // 첫번째 ~ 다섯번째에 순서대로 들어갈 value들
 	    			 + "'%s', '%s', '%s', '%s', '%s', "
+	    			 // 다섯번째 ~ 열번째에 순서대로 들어갈 value들
 	    			 + "'%s', '%s', %s, %s, '%s');",
+	    			 // 열한번째 ~ 열다섯번째에 순서대로 들어갈 value들
 	    			 field[0], field[1], field[2], field[3], field[4],
 	    			 field[5], field[6], field[7], field[8], field[9],
 	    			 field[10], field[11], field[12], field[13], field[14]);
@@ -66,9 +75,6 @@ public class DBtest08AddKeysRecreate {
 	    	 System.out.printf("%d번째 항목 Insert OK\n", LineCnt);
 	    			 
 	    	 LineCnt++;
-	    	 
-	    	 
-	    	 
 	     }
 	     br.close();
 	     stmt.close(); 

@@ -5,7 +5,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 //테이블에 레코드 집어넣기
-
+////////////////////////////////////////////////////////////////////////
+//#examtable (3) / 2021. 05. 24. / 2125341020안규원
+//테이블 레코드 집어넣기
+////////////////////////////////////////////////////////////////////////
 public class DBtest05 {
 
 	public static void main(String[] args) throws ClassNotFoundException, SQLException {

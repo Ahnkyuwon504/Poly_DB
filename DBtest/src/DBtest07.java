@@ -5,7 +5,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 // freewifi(1) 와이파이 테이블 만들기
-
+////////////////////////////////////////////////////////////////////////
+//#freewifi(1) / 2021. 05. 24. / 2125341020안규원
+//테이블 만들기
+////////////////////////////////////////////////////////////////////////
 public class DBtest07 {
 
 	public static void main(String[] args) throws ClassNotFoundException, SQLException {

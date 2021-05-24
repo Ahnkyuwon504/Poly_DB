@@ -5,7 +5,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 // 테이블 읽기
-
+////////////////////////////////////////////////////////////////////////
+//#examtable (4) / 2021. 05. 24. / 2125341020안규원
+//테이블 읽기
+////////////////////////////////////////////////////////////////////////
 public class DBtest06 {
 
 	public static void main(String[] args) throws ClassNotFoundException, SQLException {
