@@ -48,35 +48,35 @@ public class DBtest08InsertDate {
 			// 쿼리 담을 String 생성
 			String QueryTxt;
 			// 만일 빈칸이면.. 연월이 없는 것이므로 1970년으로 정해준다..
-			if (field[7].isBlank()) {
-				field[7] = "1970-1-1";
+			if (field[7].isEmpty()) {
+				field[7] = "1970-01-01";
 			} else {
 				// 빈칸이 아니라면... -으로 split한 후 앞에가 month를 나타내므로...
 				String month = field[7].split("-")[0];
 				if (month.contains("Jan")) { // 1월에 해당됨...
-					field[7] = "20" + field[7].split("-")[1] + "-01-1";
+					field[7] = "20" + field[7].split("-")[1] + "-01-01";
 				} else if (month.contains("Feb")) { // 2월에 해당됨...
-					field[7] = "20" + field[7].split("-")[1] + "-02-1";
+					field[7] = "20" + field[7].split("-")[1] + "-02-01";
 				} else if (month.contains("Mar")) { // 3월에 해당됨...
-					field[7] = "20" + field[7].split("-")[1] + "-03-1";
+					field[7] = "20" + field[7].split("-")[1] + "-03-01";
 				} else if (month.contains("Apr")) { // 4월에 해당됨...
-					field[7] = "20" + field[7].split("-")[1] + "-04-1";
+					field[7] = "20" + field[7].split("-")[1] + "-04-01";
 				} else if (month.contains("May")) { // 5월에 해당됨...
-					field[7] = "20" + field[7].split("-")[1] + "-05-1";
+					field[7] = "20" + field[7].split("-")[1] + "-05-01";
 				} else if (month.contains("Jun")) { // 6월에 해당됨...
-					field[7] = "20" + field[7].split("-")[1] + "-06-1";
+					field[7] = "20" + field[7].split("-")[1] + "-06-01";
 				} else if (month.contains("Jul")) { // 7월에 해당됨...
-					field[7] = "20" + field[7].split("-")[1] + "-07-1";
+					field[7] = "20" + field[7].split("-")[1] + "-07-01";
 				} else if (month.contains("Aug")) { // 8월에 해당됨...
-					field[7] = "20" + field[7].split("-")[1] + "-08-1";
+					field[7] = "20" + field[7].split("-")[1] + "-08-01";
 				} else if (month.contains("Sep")) { // 9월에 해당됨...
-					field[7] = "20" + field[7].split("-")[1] + "-09-1";
+					field[7] = "20" + field[7].split("-")[1] + "-09-01";
 				} else if (month.contains("Oct")) { // 10월에 해당됨...
-					field[7] = "20" + field[7].split("-")[1] + "-10-1";
+					field[7] = "20" + field[7].split("-")[1] + "-10-01";
 				} else if (month.contains("Nov")) { // 11월에 해당됨...
-					field[7] = "20" + field[7].split("-")[1] + "-11-1";
+					field[7] = "20" + field[7].split("-")[1] + "-11-01";
 				} else if (month.contains("Dec")) { // 12월에 해당됨...
-					field[7] = "20" + field[7].split("-")[1] + "-12-1";
+					field[7] = "20" + field[7].split("-")[1] + "-12-01";
 				} else {
 					if (field[7].split("-")[1].contains("Jan")) {  // 1월에 해당됨...
 						field[7] = "2021-01-" + field[7].split("-")[0];
@@ -113,15 +113,17 @@ public class DBtest08InsertDate {
 				}
 			}
 			// 쿼리문 생성
-			QueryTxt = String.format("insert ignore into freewifi5final ("
+			QueryTxt = String.format("insert ignore into freewifi8 ("
 					+ "inst_place, inst_place_detail, inst_city, inst_country, inst_place_flag, "
 					+ "service_provider, wifi_ssid, inst_date, place_addr_road, place_addr_land, "
-					+ "manage_office, manage_office_phone, latitue, longitude, write_date) " + "values ("
-					+ "'%s', '%s', '%s', '%s', '%s', " + "'%s', '%s', %s, '%s', '%s', " + "'%s', '%s', %s, %s, '%s');",
+					+ "manage_office, manage_office_phone, latitude, longitude, write_date) " + "values ("
+					+ "'%s', '%s', '%s', '%s', '%s', " + "'%s', '%s', '%s', '%s', '%s', " + "'%s', '%s', %s, %s, '%s');",
 					field[0], field[1], field[2], field[3], field[4], field[5], field[6], field[7], field[8], field[9],
 					field[10], field[11], field[12], field[13], field[14]);
 			stmt.execute(QueryTxt);
 			LineCnt++;
+			
+			if (LineCnt == 3000) break;
 		}
 		br.close();
 		stmt.close();
