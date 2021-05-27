@@ -6,10 +6,11 @@
 
 #########################################################################
 ## 6번 슬라이드
-## 테이블 만들어 보기
+## 테이블 만들어 보기, f-key 걸기
 #########################################################################
 show databases;
-use kopoctc0526Wed;
+use kopoctc_HW4;
+show tables;
 
 drop table if exists hubo;
 create table hubo(
@@ -50,8 +51,128 @@ select * from hubo;
 select kiho as 기호, name as 성명, gongyak as 공약 from hubo;
 
 #########################################################################
-## 7번 슬라이드
-## 위에서 만든 테이블에 데이터 집어넣기
+## 8번 슬라이드
+## 투표 랜덤 돌려보기, 1000번
+#########################################################################
+
+delete from tupyo where kiho>0;
+DROP PROCEDURE IF EXISTS insert_tupyo;
+DELIMITER $$
+CREATE PROCEDURE insert_tupyo(_limit integer)
+BEGIN
+DECLARE _cnt integer;
+SET _cnt=0;
+	_loop: LOOP
+		SET _cnt = _cnt + 1;
+        INSERT INTO tupyo VALUE (rand()*8 + 1, rand()*8 + 1);
+        IF _cnt = _limit THEN
+			LEAVE _loop;
+		END IF;
+	END LOOP _loop;
+END $$
+call insert_tupyo(1000);
+select kiho as 투표한기호, age as 투표자연령대 from tupyo;
+
+#########################################################################
+## 9, 10번 슬라이드
+## select
+#########################################################################
+
+select kiho as 기호, name as 성명, gongyak as 공약 from hubo;
+select kiho as 투표기호, age as 투표자연령대 from tupyo;
+select kiho, count(*) from tupyo group by kiho;
+
+#########################################################################
+## 11번 슬라이드
+## join
+#########################################################################
+
+select b.name, b.gongyak, count(a.kiho)
+	from tupyo as a, hubo as b
+    where a.kiho=b.kiho
+    group by a.kiho;
+
+#########################################################################
+## 12번 슬라이드
+## select 안에 select / 다른버전
+#########################################################################
+
+select
+	(select name from hubo where kiho=a.kiho) as 이름,
+    (select gongyak from hubo where kiho=a.kiho) as 공약,
+    count(a.kiho) as 득표수
+    from tupyo as a, hubo as b
+    group by a.kiho;
+    
+select
+	(select name from hubo as b where b.kiho=a.kiho) as 이름,
+    (select gongyak from hubo where kiho=a.kiho) as 공약,
+    count(a.kiho) as 득표수
+    from tupyo as a
+    group by a.kiho;
+    
+#########################################################################
+## 13번 슬라이드
+## 호감도 투표2 : 세명 뽑기
+#########################################################################
+
+drop table if exists tupyo2;
+create table tupyo2 (
+	kiho1 int,
+    kiho2 int,
+    kiho3 int,
+    age int,
+	);
+
+desc tupyo2;
+
+######### 세명 투표를 1000건 실행하는 procedure#################################
+
+set sql_safe_updates=0;
+
+delete from tupyo2 where kiho1>0;
+DROP PROCEDURE IF EXISTS insert_tupyo2;
+DELIMITER $$
+CREATE PROCEDURE insert_tupyo2(_limit integer)
+BEGIN
+DECLARE _cnt integer;
+SET _cnt=0;
+	_loop: LOOP
+		SET _cnt = _cnt + 1;
+        INSERT INTO tupyo2 VALUE (rand()*8 + 1, rand()*8 + 1, rand()*8 + 1, rand()*8 + 1);
+        IF _cnt = _limit THEN
+			LEAVE _loop;
+		END IF;
+	END LOOP _loop;
+END $$
+call insert_tupyo2(1000);
+
+show tables;
+select count(*) from tupyo2;
+
+#########################################################################
+## 14번 슬라이드
+## 호감도 투표2 (계속)
+#########################################################################
+
+select * from tupyo2;
+    
+select
+	b.age as 연령대,
+    h1.name as 투표1,
+    h2.name as 투표2,
+    h3.name as 투표3
+    from hubo as h1, hubo as h2, hubo as h3, tupyo2 as b
+    where h1.kiho=b.kiho1 and h2.kiho=b.kiho2 and h3.kiho=b.kiho3;
+	
+
+desc hubo;
+
+
+
+#########################################################################
+## 15번 슬라이드
+## 호감도 투표3 (계속)
 #########################################################################
 
 
@@ -60,35 +181,265 @@ select kiho as 기호, name as 성명, gongyak as 공약 from hubo;
 
 
 #########################################################################
-## 7번 슬라이드
-## 위에서 만든 테이블에 데이터 집어넣기
+## 16번 슬라이드
+## 호감도 투표4 (계속)
 #########################################################################
 
 
 
 
 
-
 #########################################################################
-## 7번 슬라이드
-## 위에서 만든 테이블에 데이터 집어넣기
-#########################################################################
-
-
-
-
-#########################################################################
-## 7번 슬라이드
-## 위에서 만든 테이블에 데이터 집어넣기
+## 17번 슬라이드
+## View와 insert안에 select
 #########################################################################
 
+show databases;
+
+drop table if exists examtable;
+create table examtable(
+	name varchar(20),
+	id int not null primary key,
+    kor int, eng int, mat int);
+desc examtable;
+delete from examtable where id>0;
+
+DROP PROCEDURE IF EXISTS insert_examtable;					## 만일 procedure가 이미 있으면 지워 버려...
+DELIMITER $$
+CREATE PROCEDURE insert_examtable(_last integer)			## create procedure
+BEGIN														## 시작
+DECLARE _name varchar(20);									## name 선언
+DECLARE _id integer;										## id 선언
+DECLARE _cnt integer;										## cnt 선언.. 이걸로 loop 빠져나올 것임..
+SET _cnt = 0;												## 시작은 0
+
+delete from examtable where id > 0;							## id 0보다 큰 레코드 다 지워...
+	_loop : LOOP											## 루프 이름 지정. 루프 시작
+		SET _cnt = _cnt + 1;								## 1번부터 들어갈거니깐... 
+        SET _name = concat("홍길", cast(_cnt as char(4)));   ## name을 만들어 준다...
+															## 4글자로 char로 _cnt를 형변환한 후, 홍길에 붙여 주는 것임...
+        SET _id = 209900 + _cnt;							## id는 그대로 뒤에 가져다 붙여...
+        
+        INSERT INTO examtable VALUE (_name, _id, rand()*100, rand()*100, rand()*100); ## 랜덤점수 세개 생성하여 insert
+        
+        IF _cnt = _last THEN								## 만일 학생수만큼 꽉 찼으면
+			LEAVE _loop;									## loop 를 떠난다...
+		END IF;												## 자바와 달리 {}가 없기 때문에 END IF;를 따로 만들어준것임...
+	END LOOP _loop;											## 마찬가지.. END LOOP 해야함...
+END $$														## procedure절차 종료
+
+call insert_examtable(1000);
+select * from examtable;
+select count(*) from examtable;
+
+#########################################################################
+## 18번 슬라이드
+## View
+#########################################################################
+
+DROP view IF EXISTS examview;
+create view examview(name, id, kor, eng, mat, tot, ave, ran)
+as select *,
+	b.kor + b.eng + b.mat,
+    (b.kor + b.eng + b.mat) / 3,
+    ( select count(*) + 1 from examtable as a
+		where (a.kor + a.eng + a.mat) > (b.kor + b.eng + b.mat) )
+	from examtable as b;
+    
+#########################################################################
+## 19번 슬라이드
+## View
+#########################################################################
+
+select * from examview;
+select name, ran from examview order by ran;										## 성적총합 순위로 나열
+select * from examview where ran > 5;
+
+insert into examview values ("나연", 309933, 100, 100, 100, 300, 100, 1);			## 에러 발생
+
+#########################################################################
+## 20번 슬라이드
+## View 대신 실제 table에 등수 때려넣기
+#########################################################################
+
+drop table if exists examtableEX;
+create table examtableEX(
+	name varchar(20),
+    id int not null primary key,
+    kor int, eng int, mat int, sum int, ave double, ranking int);
+desc examtableEX;
+
+insert into examtableEX
+	select *,															## 학번, 이름, 국, 영, 수... 5개의 field
+    b.kor + b.eng + b.mat,												## 총합... 1개의 field
+    (b.kor + b.eng + b.mat) / 3,										## 평균... 1개의 field
+    ( select count(*) + 1 from examtable as a
+		where (a.kor + a.eng + a.mat) > (b.kor + b.eng + b.mat) )		## 랭킹... 1개의 field
+	from examtable as b;
+    
+select * from examtableEX order by ranking desc;
+
+#########################################################################
+## 21번 슬라이드
+## 
+#########################################################################
+
+#########################################################################
+## 22번 슬라이드
+## 
+#########################################################################
+
+#########################################################################
+## 23번 슬라이드
+## 시험처리 : 정답테이블, 시험테이블, 채점테이블, 채점리포트테이블
+##          Answer,  Testing, Scoring, Reporttable
+#########################################################################
+
+drop table if exists Answer;
+create table Answer (
+	subjectID int not null primary key,
+    a01 int, a02 int, a03 int, a04 int, a05 int, a06 int, a07 int, a08 int, a09 int, a10 int,
+	a11 int, a12 int, a13 int, a14 int, a15 int, a16 int, a17 int, a18 int, a19 int, a20 int
+    );
+    
+drop table if exists Testing;
+create table Testing (
+	subjectID int not null,
+    stu_name varchar(20),
+    stu_id int not null,
+    a01 int, a02 int, a03 int, a04 int, a05 int, a06 int, a07 int, a08 int, a09 int, a10 int,
+	a11 int, a12 int, a13 int, a14 int, a15 int, a16 int, a17 int, a18 int, a19 int, a20 int,
+    primary key(subjectID, stu_id)
+    );
+    
+drop table if exists Scoring;
+create table Scoring (
+	subjectID int not null,
+    stu_name varchar(20),
+    stu_id int not null,
+    a01 int, a02 int, a03 int, a04 int, a05 int, a06 int, a07 int, a08 int, a09 int, a10 int,
+	a11 int, a12 int, a13 int, a14 int, a15 int, a16 int, a17 int, a18 int, a19 int, a20 int,
+    score int,
+    primary key(subjectID, stu_id)
+    );
+    
+drop table if exists Reporttable;
+create table Reporttable (
+    stu_name varchar(20),
+    stu_id int not null primary key,
+    kor int, eng int, mat int
+    );
+
+DESC Answer;
+DESC Testing;
+DESC Scoring;
+DESC Reporttable;
+
+#########################################################################
+## 24번 슬라이드
+## 정답테이블 Answer 만들기 / 4지선다
+## 시험테이블 Testing 1000건 만들기
+#########################################################################
+
+desc Answer;
+
+delete from Answer where subjectID>0;
+DROP PROCEDURE IF EXISTS insert_Answer;
+DELIMITER $$
+CREATE PROCEDURE insert_Answer()
+BEGIN
+	#################국어###############################################################################
+	INSERT INTO Answer VALUE (1, 
+							 rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1,
+							 rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1,
+                             rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1,
+                             rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1);
+    #################영어###############################################################################                         
+	INSERT INTO Answer VALUE (2, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1,
+							 rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1,
+                             rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1,
+                             rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1);
+	#################수학###############################################################################
+    INSERT INTO Answer VALUE (3, 
+							 rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1,
+							 rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1,
+                             rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1,
+                             rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1);
+END $$
+call insert_Answer;
+select * from Answer;
+
+
+desc Testing;
+
+delete from Testing where subjectID>0;
+DROP PROCEDURE IF EXISTS insert_Testing;
+DELIMITER $$
+CREATE PROCEDURE insert_Testing(_limit integer)
+BEGIN
+DECLARE _name varchar(20);									## name 선언
+DECLARE _id integer;										## id 선언
+DECLARE _cnt integer;										## cnt 선언.. 이걸로 loop 빠져나올 것임.. _cnt integer;
+SET _cnt=0;
+	_loop: LOOP
+		SET _cnt = _cnt + 1;
+        SET _name = concat("홍길", cast(_cnt as char(4)));   ## name을 만들어 준다...
+															## 4글자로 char로 _cnt를 형변환한 후, 홍길에 붙여 주는 것임...
+        SET _id = 209900 + _cnt;							## id는 그대로 뒤에 가져다 붙여...
+        
+        ####국어 답안 생성######################################################################################
+        INSERT INTO Testing VALUE (1, _name, _id,
+								   rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1,
+								   rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1,
+                                   rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1,
+                                   rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1);
+		####영어 답안 생성######################################################################################
+		INSERT INTO Testing VALUE (2, _name, _id,
+								   rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1,
+								   rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1,
+                                   rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1,
+                                   rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1);
+		####수학 답안 생성######################################################################################
+		INSERT INTO Testing VALUE (3, _name, _id,
+								   rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1,
+								   rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1,
+                                   rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1,
+                                   rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1, rand()*4 + 1);
+        
+        IF _cnt = _limit THEN
+			LEAVE _loop;
+		END IF;
+	END LOOP _loop;
+END $$
+call insert_Testing(1000);
+
+select count(*) from Testing;
+select * from Testing where stu_name="홍길1";
+
+
 
 
 
 #########################################################################
-## 7번 슬라이드
-## 위에서 만든 테이블에 데이터 집어넣기
+## 25번 슬라이드
+## 
 #########################################################################
+
+#########################################################################
+## 26번 슬라이드
+## 
+#########################################################################
+
+#########################################################################
+## 27번 슬라이드
+## 
+#########################################################################
+    
+    
+
+
+
+
 
 
 
