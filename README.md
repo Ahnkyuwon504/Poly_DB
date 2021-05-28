@@ -1,2 +1,2 @@
 # Poly_DB
-Polytect Database(MySQL, Java)
+Polytech_Database(MySQL, Java)
