@@ -166,28 +166,33 @@ select
     where h1.kiho=b.kiho1 and h2.kiho=b.kiho2 and h3.kiho=b.kiho3;
 	
 
-desc hubo;
-
-
-
-#########################################################################
-## 15번 슬라이드
-## 호감도 투표3 (계속)
-#########################################################################
-
-
-
-
-
+select
+	age as 연령대,
+    (select name from hubo where kiho=a.kiho1) as 투표1,
+    (select name from hubo where kiho=a.kiho2) as 투표2,
+    (select name from hubo where kiho=a.kiho3) as 투표3
+    from tupyo2 as a;
 
 #########################################################################
-## 16번 슬라이드
-## 호감도 투표4 (계속)
+## 15, 16번 슬라이드
+## 호감도 투표3, 4 (계속)
 #########################################################################
 
+desc tupyo2;
 
-
-
+select
+	(select count(*) from tupyo2 where kiho1=1 or kiho2=1 or kiho3=1) as "나연",
+	(select count(*) from tupyo2 where kiho1=2 or kiho2=2 or kiho3=2) as "정연",
+	(select count(*) from tupyo2 where kiho1=3 or kiho2=3 or kiho3=3) as "모모",
+	(select count(*) from tupyo2 where kiho1=4 or kiho2=4 or kiho3=4) as "사나",
+	(select count(*) from tupyo2 where kiho1=5 or kiho2=5 or kiho3=5) as "지효",
+	(select count(*) from tupyo2 where kiho1=6 or kiho2=6 or kiho3=6) as "미나",
+	(select count(*) from tupyo2 where kiho1=7 or kiho2=7 or kiho3=7) as "다현",
+	(select count(*) from tupyo2 where kiho1=8 or kiho2=8 or kiho3=8) as "채영",
+	(select count(*) from tupyo2 where kiho1=9 or kiho2=9 or kiho3=9) as "쯔위",
+    (select sum(나연 + 정연 + 모모 + 사나 + 지효 + 미나 + 다현 + 채영 + 쯔위)) as 총합,
+    (select count(*) from tupyo2 where kiho1=kiho2 or kiho2=kiho3 or kiho3=kiho1) as "두 후보 중복투표수",
+    (select count(*) from tupyo2 where kiho1=kiho2 and kiho2=kiho3) as "세 후보 중복투표수";
 
 #########################################################################
 ## 17번 슬라이드
@@ -242,8 +247,8 @@ create view examview(name, id, kor, eng, mat, tot, ave, ran)
 as select *,
 	b.kor + b.eng + b.mat,
     (b.kor + b.eng + b.mat) / 3,
-    ( select count(*) + 1 from examtable as a
-		where (a.kor + a.eng + a.mat) > (b.kor + b.eng + b.mat) )
+    ( select count(*) + 1 from examtable as a 
+    where (a.kor + a.eng + a.mat) > (b.kor + b.eng + b.mat) )
 	from examtable as b;
     
 #########################################################################
@@ -280,30 +285,22 @@ insert into examtableEX
 select * from examtableEX order by ranking desc;
 
 #########################################################################
-## 21번 슬라이드
-## 
-#########################################################################
-
-#########################################################################
-## 22번 슬라이드
-## 
-#########################################################################
-
-#########################################################################
-## 23번 슬라이드
+## 22, 23번 슬라이드
 ## 시험처리 : 정답테이블, 시험테이블, 채점테이블, 채점리포트테이블
 ##          Answer,  Testing, Scoring, Reporttable
 #########################################################################
 
 drop table if exists Answer;
-create table Answer (
+create table Answer
+	(
 	subjectID int not null primary key,
     a01 int, a02 int, a03 int, a04 int, a05 int, a06 int, a07 int, a08 int, a09 int, a10 int,
 	a11 int, a12 int, a13 int, a14 int, a15 int, a16 int, a17 int, a18 int, a19 int, a20 int
     );
     
 drop table if exists Testing;
-create table Testing (
+create table Testing 
+	(
 	subjectID int not null,
     stu_name varchar(20),
     stu_id int not null,
@@ -313,7 +310,8 @@ create table Testing (
     );
     
 drop table if exists Scoring;
-create table Scoring (
+create table Scoring 
+	(
 	subjectID int not null,
     stu_name varchar(20),
     stu_id int not null,
@@ -324,7 +322,8 @@ create table Scoring (
     );
     
 drop table if exists Reporttable;
-create table Reporttable (
+create table Reporttable 
+	(
     stu_name varchar(20),
     stu_id int not null primary key,
     kor int, eng int, mat int
@@ -422,18 +421,12 @@ select * from Testing where stu_name="홍길1";
 
 #########################################################################
 ## 25번 슬라이드
-## 
+## 리조트 예약시스템
 #########################################################################
 
-#########################################################################
-## 26번 슬라이드
-## 
-#########################################################################
 
-#########################################################################
-## 27번 슬라이드
-## 
-#########################################################################
+
+
     
     
 
