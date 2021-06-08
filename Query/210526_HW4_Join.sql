@@ -327,7 +327,7 @@ create table Scoring
     stu_name varchar(20),
     stu_id int not null,
     a01 int, a02 int, a03 int, a04 int, a05 int, a06 int, a07 int, a08 int, a09 int, a10 int,
-	a11 int, a12 int, a13 int, a14 int, a15 int, a16 int, a17 int, a18 int, a19 int, a20 int,
+	a11 int, a12 int, a13 int, a14 int, a15 int, a16 int, a17 int, a18 int, a19 int, a20 int, sumOf int,
     primary key(subjectID, stu_id)
     );
     
@@ -443,7 +443,7 @@ delete from Scoring where subjectID>0;			## 초기화, Testing의 subjectID, stu
 desc Scoring;
 insert into Scoring
 	(subjectID, stu_name, stu_id, a01, a02, a03, a04, a05, a06, a07,
-    a08, a09, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20)
+    a08, a09, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20, sumOf)
     select
 	a.subjectID
     , a.stu_name
@@ -452,24 +452,42 @@ insert into Scoring
     , IF(b.a05 = a.a05, 1, 0), IF(b.a06 = a.a06, 1, 0), IF(b.a07 = a.a07, 1, 0), IF(b.a08 = a.a08, 1, 0) 
     , IF(b.a09 = a.a09, 1, 0), IF(b.a10 = a.a10, 1, 0), IF(b.a11 = a.a11, 1, 0), IF(b.a12 = a.a12, 1, 0) 
     , IF(b.a13 = a.a13, 1, 0), IF(b.a14 = a.a14, 1, 0), IF(b.a15 = a.a15, 1, 0), IF(b.a16 = a.a16, 1, 0) 
-    , IF(b.a17 = a.a17, 1, 0), IF(b.a18 = a.a18, 1, 0), IF(b.a19 = a.a19, 1, 0), IF(b.a20 = a.a20, 1, 0) 
+    , IF(b.a17 = a.a17, 1, 0), IF(b.a18 = a.a18, 1, 0), IF(b.a19 = a.a19, 1, 0), IF(b.a20 = a.a20, 1, 0),
+    
+    (IF(b.a01 = a.a01, 1, 0) + IF(b.a02 = a.a02, 1, 0) + IF(b.a03 = a.a03, 1, 0) + IF(b.a04 = a.a04, 1, 0) 
+    + IF(b.a05 = a.a05, 1, 0) + IF(b.a06 = a.a06, 1, 0) + IF(b.a07 = a.a07, 1, 0) + IF(b.a08 = a.a08, 1, 0) 
+    + IF(b.a09 = a.a09, 1, 0) + IF(b.a10 = a.a10, 1, 0) + IF(b.a11 = a.a11, 1, 0) + IF(b.a12 = a.a12, 1, 0) 
+    + IF(b.a13 = a.a13, 1, 0) + IF(b.a14 = a.a14, 1, 0) + IF(b.a15 = a.a15, 1, 0) + IF(b.a16 = a.a16, 1, 0) 
+    + IF(b.a17 = a.a17, 1, 0) + IF(b.a18 = a.a18, 1, 0) + IF(b.a19 = a.a19, 1, 0) + IF(b.a20 = a.a20, 1, 0))
     from Testing as a, Answer as b where a.subjectID=b.subjectID;
     
 select * from Scoring;  
 
 #########################################################################
 ## 24번 슬라이드
-## 채점하기
-## 채점리포트에서 합계, 평균, 등수
+## 합계, 평균, 등수
+## ex) 나연 - 209901 - 국어점수 - 영어점수 - 수학점수 - 총합 - 평균 - 등수
 #########################################################################
 
-select * from Scoring order by stu_id;
+select stu_id, sumOf from Scoring order by stu_id;
 
-select 
-	stu_name
-    , stu_id
-    , count(a01+a02+a03+a04+a05+a06+a07+a08+a09+a10+a11+a12+a13+a14+a15+a16+a17+a18+a19+a20)
-    from Scoring group by stu_id;
+show tables;
+
+desc Testing;
+select * from Testing;
+
+desc Answer;
+select * from Answer;
+
+desc Scoring;
+select * from Scoring;
+
+desc Reporttable;
+select * from Reporttable;
+
+    
+    
+
     
 
 
@@ -478,11 +496,7 @@ select
 
 
 
-#########################################################################
-## 24번 슬라이드
-## 합계, 평균, 등수
-## ex) 나연 - 209901 - 국어점수 - 영어점수 - 수학점수 - 총합 - 평균 - 등수
-#########################################################################
+
 
 
 
@@ -520,6 +534,22 @@ select
 
     
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
