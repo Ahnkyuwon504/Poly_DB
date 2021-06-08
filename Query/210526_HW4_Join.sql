@@ -521,21 +521,92 @@ select * from Reportview;
 ## 각 문제별 득점자수, 득점률
 #########################################################################
 
+select * from Scoring;
 
+select count(*) from Scoring where subjectID=1 and a01=1;	## 국어 a01번 득점자
 
+drop table if exists Result;								## Result 테이블 제거/생성
+create table Result
+	(
+	subjectID int not null primary key,
+    a01 int, a02 int, a03 int, a04 int, a05 int, a06 int, a07 int, a08 int, a09 int, a10 int,
+	a11 int, a12 int, a13 int, a14 int, a15 int, a16 int, a17 int, a18 int, a19 int, a20 int
+    );
+desc Result;
+select * from Result;
 
+DROP PROCEDURE IF EXISTS insert_Result;					## 만일 procedure가 이미 있으면 지워 버려...
+DELIMITER $$
+CREATE PROCEDURE insert_Result()			## create procedure
+BEGIN														## 시작
+delete from Result where subjectID > 0;							## id 0보다 큰 레코드 다 지워...
+insert into Result 
+	(subjectID, a01, a02, a03, a04, a05, a06, a07, a08, a09, a10, 
+				a11, a12, a13, a14, a15, a16, a17, a18, a19, a20)
+	values
+    (1
+    , (select count(*) from Scoring where subjectID=1 and a01=1), (select count(*) from Scoring where subjectID=1 and a02=1)
+    , (select count(*) from Scoring where subjectID=1 and a03=1), (select count(*) from Scoring where subjectID=1 and a04=1) 
+    , (select count(*) from Scoring where subjectID=1 and a05=1), (select count(*) from Scoring where subjectID=1 and a06=1)
+    , (select count(*) from Scoring where subjectID=1 and a07=1), (select count(*) from Scoring where subjectID=1 and a08=1)
+    , (select count(*) from Scoring where subjectID=1 and a09=1), (select count(*) from Scoring where subjectID=1 and a10=1)
+    , (select count(*) from Scoring where subjectID=1 and a11=1), (select count(*) from Scoring where subjectID=1 and a12=1)
+    , (select count(*) from Scoring where subjectID=1 and a13=1), (select count(*) from Scoring where subjectID=1 and a14=1)
+    , (select count(*) from Scoring where subjectID=1 and a15=1), (select count(*) from Scoring where subjectID=1 and a16=1)
+    , (select count(*) from Scoring where subjectID=1 and a17=1), (select count(*) from Scoring where subjectID=1 and a18=1)
+    , (select count(*) from Scoring where subjectID=1 and a19=1), (select count(*) from Scoring where subjectID=1 and a20=1)),
+    
+    (2
+    , (select count(*) from Scoring where subjectID=2 and a01=1), (select count(*) from Scoring where subjectID=2 and a02=1)
+    , (select count(*) from Scoring where subjectID=2 and a03=1), (select count(*) from Scoring where subjectID=2 and a04=1) 
+    , (select count(*) from Scoring where subjectID=2 and a05=1), (select count(*) from Scoring where subjectID=2 and a06=1)
+    , (select count(*) from Scoring where subjectID=2 and a07=1), (select count(*) from Scoring where subjectID=2 and a08=1)
+    , (select count(*) from Scoring where subjectID=2 and a09=1), (select count(*) from Scoring where subjectID=2 and a10=1)
+    , (select count(*) from Scoring where subjectID=2 and a11=1), (select count(*) from Scoring where subjectID=2 and a12=1)
+    , (select count(*) from Scoring where subjectID=2 and a13=1), (select count(*) from Scoring where subjectID=2 and a14=1)
+    , (select count(*) from Scoring where subjectID=2 and a15=1), (select count(*) from Scoring where subjectID=2 and a16=1)
+    , (select count(*) from Scoring where subjectID=2 and a17=1), (select count(*) from Scoring where subjectID=2 and a18=1)
+    , (select count(*) from Scoring where subjectID=2 and a19=1), (select count(*) from Scoring where subjectID=2 and a20=1)),
+    
+    (3
+    , (select count(*) from Scoring where subjectID=3 and a01=1), (select count(*) from Scoring where subjectID=3 and a02=1)
+    , (select count(*) from Scoring where subjectID=3 and a03=1), (select count(*) from Scoring where subjectID=3 and a04=1) 
+    , (select count(*) from Scoring where subjectID=3 and a05=1), (select count(*) from Scoring where subjectID=3 and a06=1)
+    , (select count(*) from Scoring where subjectID=3 and a07=1), (select count(*) from Scoring where subjectID=3 and a08=1)
+    , (select count(*) from Scoring where subjectID=3 and a09=1), (select count(*) from Scoring where subjectID=3 and a10=1)
+    , (select count(*) from Scoring where subjectID=3 and a11=1), (select count(*) from Scoring where subjectID=3 and a12=1)
+    , (select count(*) from Scoring where subjectID=3 and a13=1), (select count(*) from Scoring where subjectID=3 and a14=1)
+    , (select count(*) from Scoring where subjectID=3 and a15=1), (select count(*) from Scoring where subjectID=3 and a16=1)
+    , (select count(*) from Scoring where subjectID=3 and a17=1), (select count(*) from Scoring where subjectID=3 and a18=1)
+    , (select count(*) from Scoring where subjectID=3 and a19=1), (select count(*) from Scoring where subjectID=3 and a20=1))
+    ;
+END $$														## procedure절차 종료
 
+call insert_Result();
 
-
-
-
-
-
-
-
-
-
-
+select * from Result;
+select subjectID
+	   , a01 / ((select count(*) from Scoring group by subjectID limit 1)) as 'a01 정답률'
+	   , a02 / ((select count(*) from Scoring group by subjectID limit 1)) as 'a02 정답률'
+	   , a03 / ((select count(*) from Scoring group by subjectID limit 1)) as 'a03 정답률'
+	   , a04 / ((select count(*) from Scoring group by subjectID limit 1)) as 'a04 정답률'
+	   , a05 / ((select count(*) from Scoring group by subjectID limit 1)) as 'a05 정답률'
+	   , a06 / ((select count(*) from Scoring group by subjectID limit 1)) as 'a06 정답률'
+	   , a07 / ((select count(*) from Scoring group by subjectID limit 1)) as 'a07 정답률'
+	   , a08 / ((select count(*) from Scoring group by subjectID limit 1)) as 'a08 정답률'
+	   , a09 / ((select count(*) from Scoring group by subjectID limit 1)) as 'a09 정답률'
+	   , a10 / ((select count(*) from Scoring group by subjectID limit 1)) as 'a10 정답률'
+	   , a11 / ((select count(*) from Scoring group by subjectID limit 1)) as 'a11 정답률'
+	   , a12 / ((select count(*) from Scoring group by subjectID limit 1)) as 'a12 정답률'
+	   , a13 / ((select count(*) from Scoring group by subjectID limit 1)) as 'a13 정답률'
+	   , a14 / ((select count(*) from Scoring group by subjectID limit 1)) as 'a14 정답률'
+	   , a15 / ((select count(*) from Scoring group by subjectID limit 1)) as 'a15 정답률'
+	   , a16 / ((select count(*) from Scoring group by subjectID limit 1)) as 'a16 정답률'
+	   , a17 / ((select count(*) from Scoring group by subjectID limit 1)) as 'a17 정답률'
+	   , a18 / ((select count(*) from Scoring group by subjectID limit 1)) as 'a18 정답률'
+	   , a19 / ((select count(*) from Scoring group by subjectID limit 1)) as 'a19 정답률'
+	   , a20 / ((select count(*) from Scoring group by subjectID limit 1)) as 'a20 정답률'
+       from Result;
 
 #########################################################################
 ## 25번 슬라이드
