@@ -469,43 +469,56 @@ select * from Scoring;
 ## ex) 나연 - 209901 - 국어점수 - 영어점수 - 수학점수 - 총합 - 평균 - 등수
 #########################################################################
 
-select stu_id, sumOf from Scoring order by stu_id;
+DROP PROCEDURE IF EXISTS insert_Reporttable;					## 만일 procedure가 이미 있으면 지워 버려...
+DELIMITER $$
+CREATE PROCEDURE insert_Reporttable(_last integer)			## create procedure
+BEGIN														## 시작
+DECLARE _name varchar(20);									## name 선언
+DECLARE _id integer;										## id 선언
+DECLARE _cnt integer;										## cnt 선언.. 이걸로 loop 빠져나올 것임..
+DECLARE _kor integer;
+DECLARE _eng integer;
+DECLARE _mat integer;
+SET _cnt = 0;												## 시작은 0
 
-show tables;
+delete from Reporttable where stu_id > 0;							## id 0보다 큰 레코드 다 지워...
+	_loop : LOOP											## 루프 이름 지정. 루프 시작
+		SET _cnt = _cnt + 1;								## 1번부터 들어갈거니깐... 
+        SET _id = 209900 + _cnt;							## id는 그대로 뒤에 가져다 붙여...
+        SET _name = (select stu_name from Scoring where stu_id=_id limit 1);   ## name을 만들어 준다..
+        SET _kor = (select sumOf from Scoring where stu_id=_id and subjectID=1);  
+        SET _eng = (select sumOf from Scoring where stu_id=_id and subjectID=2);   
+        SET _mat = (select sumOf from Scoring where stu_id=_id and subjectID=3);  
+        
+        INSERT INTO Reporttable VALUE (_name, _id, _kor, _eng, _mat); 
+        
+        IF _cnt = _last THEN								
+			LEAVE _loop;								
+		END IF;												
+	END LOOP _loop;											
+END $$														## procedure절차 종료
 
-desc Testing;
-select * from Testing;
-
-desc Answer;
-select * from Answer;
-
-desc Scoring;
-select * from Scoring;
-
+call insert_Reporttable((select count(*) from Scoring group by subjectID limit 1));
 desc Reporttable;
 select * from Reporttable;
 
+DROP view IF EXISTS Reportview;
+create view Reportview(name, id, kor, eng, mat, tot, ave, ran)
+as select 
+	b.stu_name, b.stu_id, 
+    b.kor * 5, b.eng * 5, b.mat * 5,
+	(b.kor + b.eng + b.mat) * 5,
+    (b.kor + b.eng + b.mat) * 5 / 3,
+    ( select count(*) + 1 from Reporttable as a 
+    where (a.kor + a.eng + a.mat) > (b.kor + b.eng + b.mat) )
+	from Reporttable as b;
     
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
+select * from Reportview;
 
 #########################################################################
 ## 24번 슬라이드
-## 각 과목별, 문제별 득점자수
-## 득점률 리포트
+## 각 과목별 득점자수, 득점률
+## 각 문제별 득점자수, 득점률
 #########################################################################
 
 
