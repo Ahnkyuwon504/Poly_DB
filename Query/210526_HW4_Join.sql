@@ -1,43 +1,41 @@
 #########################################################################
 ## 4장 / 2021. 05. 26. / 2125341020 안규원
 ## 실습
-##
+## 
 #########################################################################
 
 #########################################################################
 ## 6번 슬라이드
 ## 테이블 만들어 보기, f-key 걸기
 #########################################################################
-show databases;
-use kopoctc_HW4;
-show tables;
+show databases;										## 데이터베이스 조회
+use kopoctc_HW4;									## kopoctc_HW4 사용
+show tables;										## table 조회
 
-drop table if exists hubo;
-create table hubo(
-	kiho int not null,
-    name varchar(10),
-    gongyak varchar(50),
-    primary key(kiho),
-    index(kiho));
-desc hubo;
+drop table if exists hubo;							## table 생성 전 지우는 습관
+create table hubo(									## hubo table을 만든다..
+	kiho int not null,								## 기호번호
+    name varchar(10),								## 이름
+    gongyak varchar(50),							## 공약
+    primary key(kiho),								## 기호를 프라이머리 키로...
+    index(kiho));									## 인덱스 부여
+desc hubo;											## table 만든 후 describe하는 습관
 
-drop table if exists tupyo;
-create table tupyo(
-	kiho int,
-    age int,
-    foreign key tupyo(kiho) references hubo(kiho)
-    );
-desc tupyo;
-
-show tables;
+drop table if exists tupyo;							## tupyo 만들기 전 지우는 습관
+create table tupyo(									## tupyo table을 만든다..
+	kiho int,										## 기호번호
+    age int,										## 투표연령대
+    foreign key tupyo(kiho) references hubo(kiho)	## tupyo는 hubo의 kiho를 참조하기 때문에 hubo를 지울 수 없음... tupyo 지워야 지울수있음...
+    );												
+desc tupyo;											## tupyo 확인
 
 #########################################################################
 ## 7번 슬라이드
 ## 위에서 만든 테이블에 데이터 집어넣기
 #########################################################################
 
-delete from hubo where kiho > 0;
-insert into hubo values (1, "나연", "정의사회 구현");
+delete from hubo where kiho > 0;												## insert 전에 지운다..
+insert into hubo values (1, "나연", "정의사회 구현");								## 1번 ~ 9번 후보 insert
 insert into hubo values (2, "정연", "모두 1억 줌");
 insert into hubo values (3, "모모", "월화수목토토일");
 insert into hubo values (4, "사나", "살맛나는 세상, 비계맛도 조금");
@@ -47,47 +45,47 @@ insert into hubo values (7, "다현", "장바구니 다 사줄게");
 insert into hubo values (8, "채영", "노는 게 제일 좋아 뽀로로 세상 구현");
 insert into hubo values (9, "쯔위", "커플 지옥 싱글 파라다이스");
 
-select * from hubo;
-select kiho as 기호, name as 성명, gongyak as 공약 from hubo;
+select * from hubo;																## 확인
+select kiho as 기호, name as 성명, gongyak as 공약 from hubo;						## 기호, 공약으로 이름 부여해서 확인
 
 #########################################################################
 ## 8번 슬라이드
 ## 투표 랜덤 돌려보기, 1000번
 #########################################################################
 
-delete from tupyo where kiho>0;
-DROP PROCEDURE IF EXISTS insert_tupyo;
-DELIMITER $$
-CREATE PROCEDURE insert_tupyo(_limit integer)
-BEGIN
-DECLARE _cnt integer;
-SET _cnt=0;
-	_loop: LOOP
-		SET _cnt = _cnt + 1;
-        INSERT INTO tupyo VALUE (rand()*8 + 1, rand()*8 + 1);
-        IF _cnt = _limit THEN
-			LEAVE _loop;
-		END IF;
-	END LOOP _loop;
-END $$
-call insert_tupyo(1000);
-select kiho as 투표한기호, age as 투표자연령대 from tupyo;
+delete from tupyo where kiho>0;										## insert procedure 실행 전 싹다 지우기
+DROP PROCEDURE IF EXISTS insert_tupyo;								## procedure 생성 전 없애기
+DELIMITER $$														## procedure 시작
+CREATE PROCEDURE insert_tupyo(_limit integer)						## 생성하겠다... _limit 받아서...
+BEGIN																## 시작
+DECLARE _cnt integer;												## _cnt 선언
+SET _cnt=0;															## _cnt 값 0으로 세팅
+	_loop: LOOP														## _loop라는 이름의 LOOP 시작
+		SET _cnt = _cnt + 1;										## 루프마다 _cnt + 1
+        INSERT INTO tupyo VALUE (rand()*8 + 1, rand()*8 + 1);		## tupyo에 insert
+        IF _cnt = _limit THEN										## LOOP 종료조건
+			LEAVE _loop;											
+		END IF;														
+	END LOOP _loop;													## LOOP 한바퀴 종료
+END $$																## procedure생성 끝
+call insert_tupyo(1000);											## 1000번 insert할거야...
+select kiho as 투표한기호, age as 투표자연령대 from tupyo;				## insert결과 확인
 
 #########################################################################
 ## 9, 10번 슬라이드
 ## select
 #########################################################################
 
-select kiho as 기호, name as 성명, gongyak as 공약 from hubo;
-select kiho as 투표기호, age as 투표자연령대 from tupyo;
-select kiho, count(*) from tupyo group by kiho;
+select kiho as 기호, name as 성명, gongyak as 공약 from hubo;			## 기호, 성명, 공약으로 확인
+select kiho as 투표기호, age as 투표자연령대 from tupyo;					## 투표기호, 연령대 확인
+select kiho, count(*) from tupyo group by kiho;						## 몇개 들어갔는지 확인
 
 #########################################################################
 ## 11번 슬라이드
 ## join
 #########################################################################
 
-select b.name, b.gongyak, count(a.kiho)
+select b.name, b.gongyak, count(a.kiho)								## kiho로 묶어서 몇표 획득했는지 확인
 	from tupyo as a, hubo as b
     where a.kiho=b.kiho
     group by a.kiho;
@@ -97,14 +95,14 @@ select b.name, b.gongyak, count(a.kiho)
 ## select 안에 select / 다른버전
 #########################################################################
 
-select
+select																## subquery 활용, select 안에 select
 	(select name from hubo where kiho=a.kiho) as 이름,
     (select gongyak from hubo where kiho=a.kiho) as 공약,
     count(a.kiho) as 득표수
     from tupyo as a, hubo as b
     group by a.kiho;
     
-select
+select																## subquery 활용, select 안에 select
 	(select name from hubo as b where b.kiho=a.kiho) as 이름,
     (select gongyak from hubo where kiho=a.kiho) as 공약,
     count(a.kiho) as 득표수
@@ -116,7 +114,7 @@ select
 ## 호감도 투표2 : 세명 뽑기
 #########################################################################
 
-drop table if exists tupyo2;
+drop table if exists tupyo2;								## 세명씩 투표하는 tupyo2 만들기 전 지우기
 create table tupyo2 (
 	kiho1 int,
     kiho2 int,
@@ -124,40 +122,37 @@ create table tupyo2 (
     age int
 	);
 
-desc tupyo2;
+desc tupyo2;												## tupyo2 확인
 
 ######### 세명 투표를 1000건 실행하는 procedure#################################
 
-set sql_safe_updates=0;
+set sql_safe_updates=0;											## 이거 해야 update 또는 delete 가능...
 
-delete from tupyo2 where kiho1>0;
-DROP PROCEDURE IF EXISTS insert_tupyo2;
+delete from tupyo2 where kiho1>0;								## insert 전 지우기
+DROP PROCEDURE IF EXISTS insert_tupyo2;							## procedure 만들기 전에 지우기...
 DELIMITER $$
-CREATE PROCEDURE insert_tupyo2(_limit integer)
+CREATE PROCEDURE insert_tupyo2(_limit integer)					## insert_tupyo2 만들기 
 BEGIN
-DECLARE _cnt integer;
+DECLARE _cnt integer;											## _cnt 선언
 SET _cnt=0;
 	_loop: LOOP
-		SET _cnt = _cnt + 1;
+		SET _cnt = _cnt + 1;									
         INSERT INTO tupyo2 VALUE (rand()*8 + 1, rand()*8 + 1, rand()*8 + 1, rand()*8 + 1);
         IF _cnt = _limit THEN
 			LEAVE _loop;
 		END IF;
 	END LOOP _loop;
 END $$
-call insert_tupyo2(1000);
+call insert_tupyo2(1000);										## 1000번 시행... 
 
-show tables;
-select count(*) from tupyo2;
+select count(*) from tupyo2;									## 잘 들어갔나 확인
 
 #########################################################################
 ## 14번 슬라이드
 ## 호감도 투표2 (계속)
 #########################################################################
 
-select * from tupyo2;
-
-select 
+select 																	## tupyo2의 내용 확인
 	b.age as 연령대,
     a.name as 투표1,
     a.name as 투표2,
@@ -165,7 +160,7 @@ select
     from hubo as a, tupyo2 as b
     where a.kiho = b.kiho1 and a.kiho = b.kiho2 and a.kiho = b.kiho3;   ## 오류 케이스... 모두 똑같이 나옴
     
-select
+select																	## 오류 안나게 하려면.....
 	b.age as 연령대,
     h1.name as 투표1,
     h2.name as 투표2,
@@ -174,8 +169,7 @@ select
     where h1.kiho=b.kiho1 and h2.kiho=b.kiho2 and h3.kiho=b.kiho3;		## 같은 hubo라도 h1, h2, h3 각각 지정해 줘야
 																		## 독립적으로 인식됨..
 	
-
-select
+select																	## subquery로도 가능...
 	age as 연령대,
     (select name from hubo where kiho=a.kiho1) as 투표1,
     (select name from hubo where kiho=a.kiho2) as 투표2,
@@ -187,9 +181,7 @@ select
 ## 호감도 투표3, 4 (계속)
 #########################################################################
 
-desc tupyo2;
-
-select
+select																			## 한표씩 투표된 사항, 중복투표, 3중복투표 확인
 	(select count(*) from tupyo2 where kiho1=1 or kiho2=1 or kiho3=1) as "나연",
 	(select count(*) from tupyo2 where kiho1=2 or kiho2=2 or kiho3=2) as "정연",
 	(select count(*) from tupyo2 where kiho1=3 or kiho2=3 or kiho3=3) as "모모",
@@ -208,15 +200,13 @@ select
 ## View와 insert안에 select
 #########################################################################
 
-show databases;
-
-drop table if exists examtable;
+drop table if exists examtable;								## table 생성 전 지우기
 create table examtable(
 	name varchar(20),
 	id int not null primary key,
     kor int, eng int, mat int);
 desc examtable;
-delete from examtable where id>0;
+delete from examtable where id>0;							
 
 DROP PROCEDURE IF EXISTS insert_examtable;					## 만일 procedure가 이미 있으면 지워 버려...
 DELIMITER $$
@@ -251,8 +241,8 @@ select count(*) from examtable;
 ## View
 #########################################################################
 
-DROP view IF EXISTS examview;
-create view examview(name, id, kor, eng, mat, tot, ave, ran)
+DROP view IF EXISTS examview;									## view 생성 전 지우기
+create view examview(name, id, kor, eng, mat, tot, ave, ran)	## view의 column 지정
 as select *,
 	b.kor + b.eng + b.mat,
     (b.kor + b.eng + b.mat) / 3,
@@ -266,17 +256,17 @@ as select *,
 #########################################################################
 
 select * from examview;
-select name, ran from examview order by ran;										## 성적총합 순위로 나열
+select name, ran from examview order by ran;									## 성적총합 순위로 나열
 select * from examview where ran > 5;
 
-insert into examview values ("나연", 309933, 100, 100, 100, 300, 100, 1);			## 에러 발생
+insert into examview values ("나연", 309933, 100, 100, 100, 300, 100, 1);		## 에러 발생
 
 #########################################################################
 ## 20번 슬라이드
 ## View 대신 실제 table에 등수 때려넣기
 #########################################################################
 
-drop table if exists examtableEX;
+drop table if exists examtableEX;										## 실제 table 생성 전 지우기
 create table examtableEX(
 	name varchar(20),
     id int not null primary key,
@@ -299,17 +289,17 @@ select * from examtableEX order by ranking desc;
 ##          Answer,  Testing, Scoring, Reporttable
 #########################################################################
 
-drop table if exists Answer;
-create table Answer
+drop table if exists Answer;								## table 생성 전 지우기
+create table Answer											## Answer table 생성
 	(
 	subjectID int not null primary key,
     a01 int, a02 int, a03 int, a04 int, a05 int, a06 int, a07 int, a08 int, a09 int, a10 int,
 	a11 int, a12 int, a13 int, a14 int, a15 int, a16 int, a17 int, a18 int, a19 int, a20 int
     );
-desc Answer;
+desc Answer;												
     
-drop table if exists Testing;
-create table Testing 
+drop table if exists Testing;								## table 생성 전 지우기
+create table Testing 										## Testing table 생성
 	(
 	subjectID int not null,
     stu_name varchar(20),
@@ -318,10 +308,10 @@ create table Testing
 	a11 int, a12 int, a13 int, a14 int, a15 int, a16 int, a17 int, a18 int, a19 int, a20 int,
     primary key(subjectID, stu_id)
     );
-desc Testing;
+desc Testing;												
     
-drop table if exists Scoring;
-create table Scoring 
+drop table if exists Scoring;								## table 생성 전 지우기
+create table Scoring 										## Scoring table 생성
 	(
 	subjectID int not null,
     stu_name varchar(20),
@@ -331,19 +321,18 @@ create table Scoring
     primary key(subjectID, stu_id)
     );
     
-drop table if exists Reporttable;
-create table Reporttable 
+drop table if exists Reporttable;							## table 생성 전 지우기
+create table Reporttable 									## Reporttable table 생성
 	(
     stu_name varchar(20),
     stu_id int not null primary key,
     kor int, eng int, mat int
     );
 
-DESC Answer;
-DESC Testing;
-DESC Scoring;
-DESC Reporttable;
-select * from Reporttable;
+DESC Answer;												## table 확인
+DESC Testing;												## table 확인
+DESC Scoring;												## table 확인
+DESC Reporttable;											## table 확인
 
 #########################################################################
 ## 24번 슬라이드
@@ -351,12 +340,10 @@ select * from Reporttable;
 ## 시험테이블 Testing 1000건 만들기
 #########################################################################
 
-desc Answer;
-
-delete from Answer where subjectID>0;
-DROP PROCEDURE IF EXISTS insert_Answer;
+delete from Answer where subjectID>0;						## insert 전 지우기
+DROP PROCEDURE IF EXISTS insert_Answer;						## procedure 생성 전 제거
 DELIMITER $$
-CREATE PROCEDURE insert_Answer()
+CREATE PROCEDURE insert_Answer()							## procedure 생성
 BEGIN
 	#################국어###############################################################################
 	INSERT INTO Answer VALUE (1, 
@@ -383,8 +370,8 @@ select * from Answer;
 
 desc Testing;
 
-delete from Testing where subjectID>0;
-DROP PROCEDURE IF EXISTS insert_Testing;
+delete from Testing where subjectID>0;						## insert 전 지우기
+DROP PROCEDURE IF EXISTS insert_Testing;					## insert_Testing procedure 생성 전 지우기
 DELIMITER $$
 CREATE PROCEDURE insert_Testing(_limit integer)
 BEGIN
@@ -441,7 +428,7 @@ select * from Testing order by stu_id;
 
 delete from Scoring where subjectID>0;			## 초기화, Testing의 subjectID, stu_name, stu_id, 정답여부 복사
 desc Scoring;
-insert into Scoring
+insert into Scoring								## insert
 	(subjectID, stu_name, stu_id, a01, a02, a03, a04, a05, a06, a07,
     a08, a09, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20, sumOf)
     select
@@ -469,7 +456,7 @@ select * from Scoring;
 ## ex) 나연 - 209901 - 국어점수 - 영어점수 - 수학점수 - 총합 - 평균 - 등수
 #########################################################################
 
-DROP PROCEDURE IF EXISTS insert_Reporttable;					## 만일 procedure가 이미 있으면 지워 버려...
+DROP PROCEDURE IF EXISTS insert_Reporttable;				## 만일 procedure가 이미 있으면 지워 버려...
 DELIMITER $$
 CREATE PROCEDURE insert_Reporttable(_last integer)			## create procedure
 BEGIN														## 시작
@@ -481,7 +468,7 @@ DECLARE _eng integer;
 DECLARE _mat integer;
 SET _cnt = 0;												## 시작은 0
 
-delete from Reporttable where stu_id > 0;							## id 0보다 큰 레코드 다 지워...
+delete from Reporttable where stu_id > 0;					## id 0보다 큰 레코드 다 지워...
 	_loop : LOOP											## 루프 이름 지정. 루프 시작
 		SET _cnt = _cnt + 1;								## 1번부터 들어갈거니깐... 
         SET _id = 209900 + _cnt;							## id는 그대로 뒤에 가져다 붙여...
@@ -514,6 +501,7 @@ as select
 	from Reporttable as b;
     
 select * from Reportview;
+select * from Reportview order by ran;
 
 #########################################################################
 ## 24번 슬라이드
@@ -535,11 +523,11 @@ create table Result
 desc Result;
 select * from Result;
 
-DROP PROCEDURE IF EXISTS insert_Result;					## 만일 procedure가 이미 있으면 지워 버려...
+DROP PROCEDURE IF EXISTS insert_Result;						## 만일 procedure가 이미 있으면 지워 버려...
 DELIMITER $$
-CREATE PROCEDURE insert_Result()			## create procedure
+CREATE PROCEDURE insert_Result()							## create procedure
 BEGIN														## 시작
-delete from Result where subjectID > 0;							## id 0보다 큰 레코드 다 지워...
+delete from Result where subjectID > 0;						## id 0보다 큰 레코드 다 지워...
 insert into Result 
 	(subjectID, a01, a02, a03, a04, a05, a06, a07, a08, a09, a10, 
 				a11, a12, a13, a14, a15, a16, a17, a18, a19, a20)
@@ -607,38 +595,6 @@ select subjectID
 	   , a19 / ((select count(*) from Scoring group by subjectID limit 1)) as 'a19 정답률'
 	   , a20 / ((select count(*) from Scoring group by subjectID limit 1)) as 'a20 정답률'
        from Result;
-
-#########################################################################
-## 25번 슬라이드
-## 리조트 예약시스템
-#########################################################################
-
-
-
-
-    
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #########################################################################
 ## 시행착오
